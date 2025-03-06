@@ -47,6 +47,10 @@ VegaLite.new(width: 600, height: 400)
 
 ## Tracing a Line
 
+Where $(y_0,x_0)$ is a point on the above scatter chart.
+
+$y_i = w*x_i$
+
 ```elixir
 defmodule C2.LinearRegression do
   @doc """
@@ -72,24 +76,26 @@ defmodule C2.LinearRegression do
     squared_error = square(errors)
     avg(squared_error)
   end
-
-  # The train function implements a simple hill-climbing optimization algorithm:
-  # 1. It starts with a weight of 0
-  # 2. For each iteration, it:
-  #    - Calculates the current loss (mean squared error)
-  #    - Tries increasing the weight by the learning rate
-  #    - Tries decreasing the weight by the learning rate
-  #    - Moves in the direction that reduces the loss
-  #    - If neither direction improves the loss, it stops (local minimum found)
-  # 3. Returns the final optimized weight
-  #
-  # This is a simplified gradient descent that only tries two directions
-  # rather than calculating the actual gradient.
+  
+  @doc """
+  The train function implements a simple hill-climbing optimization algorithm:
+  1. It starts with a weight of 0
+  2. For each iteration, it:
+     - Calculates the current loss (mean squared error)
+     - Tries increasing the weight by the learning rate
+     - Tries decreasing the weight by the learning rate
+     - Moves in the direction that reduces the loss
+     - If neither direction improves the loss, it stops (local minimum found)
+  3. Returns the final optimized weight
+ 
+  This is a simplified gradient descent that only tries two directions
+  rather than calculating the actual gradient 
+  """
   def train(x, y, iterations, lr) when is_list(x) and is_list(y) do
     Enum.reduce_while(0..(iterations - 1), 0, fn i, w ->
       current_loss = loss(x, y, w)
 
-      IO.puts("Iteration #{i} => Loss: #{current_loss}")
+      IO.puts("Iteration #{i} => Loss: #{current_loss} w: #{w}")
 
       cond do
         loss(x, y, w + lr) < current_loss -> {:cont, w + lr}
@@ -129,17 +135,9 @@ lr = Kino.Input.number("lr (learning rate)", default: 0.01)
 ```
 
 ```elixir
-# Read the user-provided values for iterations and learning rate
 iterations = Kino.Input.read(iterations)
 lr = Kino.Input.read(lr)
 
-# Train the linear regression model without bias
-# This process will:
-# 1. Start with a weight of 0
-# 2. Iteratively adjust the weight to minimize the mean squared error
-# 3. Print the loss at each iteration to show progress
-# 4. Stop when no improvement is found or max iterations reached
-# 5. Return the final optimized weight
 w = C2.LinearRegression.train(x, y, iterations = iterations, lr = lr)
 ```
 
@@ -178,6 +176,8 @@ VegaLite.new(width: 600, height: 400)
 
 ## Adding a Bias
 
+$y_i = w*x_i + b$
+
 ```elixir
 defmodule C2.LinearRegressionWithBias do
   @doc """
@@ -203,25 +203,27 @@ defmodule C2.LinearRegressionWithBias do
     squared_error = square(errors)
     avg(squared_error)
   end
-
-  # The train function for the model with bias implements a coordinate descent algorithm:
-  # 1. It starts with both weight and bias at 0
-  # 2. For each iteration, it:
-  #    - Calculates the current loss (mean squared error)
-  #    - Tries adjusting the weight up and down by the learning rate
-  #    - Tries adjusting the bias up and down by the learning rate
-  #    - Moves in the direction that reduces the loss the most
-  #    - If no direction improves the loss, it stops (local minimum found)
-  # 3. Returns the final optimized weight and bias
-  #
-  # This approach optimizes one parameter at a time, checking all possible
-  # single-parameter adjustments and selecting the best one.
+  
+  @doc """
+  The train function for the model with bias implements a coordinate descent algorithm:
+  1. It starts with both weight and bias at 0
+  2. For each iteration, it:
+     - Calculates the current loss (mean squared error)
+     - Tries adjusting the weight up and down by the learning rate
+     - Tries adjusting the bias up and down by the learning rate
+     - Moves in the direction that reduces the loss the most
+     - If no direction improves the loss, it stops (local minimum found)
+  3. Returns the final optimized weight and bias
+  
+  This approach optimizes one parameter at a time, checking all possible
+  single-parameter adjustments and selecting the best one
+  """
   def train(x, y, iterations, lr) when is_list(x) and is_list(y) do
-    Enum.reduce_while(0..(iterations - 1), %{weight: 0, bias: 0}, fn i,
+    Enum.reduce_while(0..(iterations - 1), %{weight: 0.0, bias: 0.0}, fn i,
                                                                      %{weight: w, bias: b} = acc ->
       current_loss = loss(x, y, w, b)
 
-      IO.puts("Iteration #{i} => Loss: #{current_loss}")
+      IO.puts("Iteration #{i} => Loss: #{current_loss} y = #{Float.round(w, 2)}x + #{Float.round(b, 2)}")
 
       cond do
         loss(x, y, w + lr, b) < current_loss -> {:cont, %{acc | weight: w + lr}}
@@ -254,19 +256,9 @@ lr = Kino.Input.number("lr (learning rate)", default: 0.01)
 ```
 
 ```elixir
-# Read the user-provided values for iterations and learning rate
 iterations = Kino.Input.read(iterations)
 lr = Kino.Input.read(lr)
 
-# Train the linear regression model with bias
-# This process will:
-# 1. Start with both weight and bias at 0
-# 2. Iteratively adjust both parameters to minimize the mean squared error
-# 3. At each step, try changing one parameter (weight or bias) in either direction
-# 4. Move in the direction that most reduces the error
-# 5. Print the loss at each iteration to show progress
-# 6. Stop when no improvement is found or max iterations reached
-# 7. Return the final optimized weight and bias
 %{weight: w2, bias: bias} =
   C2.LinearRegressionWithBias.train(x, y, iterations = 10_000, lr = 0.01)
 ```
@@ -309,3 +301,11 @@ VegaLite.new(width: 600, height: 400)
   |> VegaLite.encode_field(:y, "prediction", type: :quantitative)
 ])
 ```
+
+### How is a time series with only the actuals different?
+
+Rather than using the number of reservations we could use the number of pizzas sold 7 days ago as the x-axis. The resulting equation would be:
+
+$y_i = y_{i-7}*w + b$
+
+Trained in the same way to find the weight and the bias.
