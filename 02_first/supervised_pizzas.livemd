@@ -35,7 +35,7 @@ Kino.DataTable.new(data)
 
 ### Plot the data
 
-<!-- livebook:{"attrs":{"chart_title":null,"height":400,"layers":[{"chart_type":"point","color_field":null,"color_field_aggregate":null,"color_field_bin":false,"color_field_scale_scheme":null,"color_field_type":null,"data_variable":"data","x_field":"reservations","x_field_aggregate":null,"x_field_bin":false,"x_field_scale_type":null,"x_field_type":"quantitative","y_field":"pizzas","y_field_aggregate":null,"y_field_bin":false,"y_field_scale_type":null,"y_field_type":"quantitative"}],"vl_alias":"Elixir.VegaLite","width":600},"chunks":null,"kind":"Elixir.KinoVegaLite.ChartCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJjaGFydF90aXRsZSI6bnVsbCwiaGVpZ2h0Ijo0MDAsImxheWVycyI6W3siYWN0aXZlIjp0cnVlLCJjaGFydF90eXBlIjoicG9pbnQiLCJjb2xvcl9maWVsZCI6bnVsbCwiY29sb3JfZmllbGRfYWdncmVnYXRlIjpudWxsLCJjb2xvcl9maWVsZF9iaW4iOmZhbHNlLCJjb2xvcl9maWVsZF9zY2FsZV9zY2hlbWUiOm51bGwsImNvbG9yX2ZpZWxkX3R5cGUiOm51bGwsImRhdGFfdmFyaWFibGUiOiJkYXRhIiwiZ2VvZGF0YV9jb2xvciI6ImJsdWUiLCJsYXRpdHVkZV9maWVsZCI6bnVsbCwibG9uZ2l0dWRlX2ZpZWxkIjpudWxsLCJ4X2ZpZWxkIjoicmVzZXJ2YXRpb25zIiwieF9maWVsZF9hZ2dyZWdhdGUiOm51bGwsInhfZmllbGRfYmluIjpmYWxzZSwieF9maWVsZF9zY2FsZV90eXBlIjpudWxsLCJ4X2ZpZWxkX3R5cGUiOiJxdWFudGl0YXRpdmUiLCJ5X2ZpZWxkIjoicGl6emFzIiwieV9maWVsZF9hZ2dyZWdhdGUiOm51bGwsInlfZmllbGRfYmluIjpmYWxzZSwieV9maWVsZF9zY2FsZV90eXBlIjpudWxsLCJ5X2ZpZWxkX3R5cGUiOiJxdWFudGl0YXRpdmUifV0sInZsX2FsaWFzIjoiRWxpeGlyLlZlZ2FMaXRlIiwid2lkdGgiOjYwMH0","chunks":null,"kind":"Elixir.KinoVegaLite.ChartCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 VegaLite.new(width: 600, height: 400)
@@ -73,6 +73,18 @@ defmodule C2.LinearRegression do
     avg(squared_error)
   end
 
+  # The train function implements a simple hill-climbing optimization algorithm:
+  # 1. It starts with a weight of 0
+  # 2. For each iteration, it:
+  #    - Calculates the current loss (mean squared error)
+  #    - Tries increasing the weight by the learning rate
+  #    - Tries decreasing the weight by the learning rate
+  #    - Moves in the direction that reduces the loss
+  #    - If neither direction improves the loss, it stops (local minimum found)
+  # 3. Returns the final optimized weight
+  #
+  # This is a simplified gradient descent that only tries two directions
+  # rather than calculating the actual gradient.
   def train(x, y, iterations, lr) when is_list(x) and is_list(y) do
     Enum.reduce_while(0..(iterations - 1), 0, fn i, w ->
       current_loss = loss(x, y, w)
@@ -117,9 +129,17 @@ lr = Kino.Input.number("lr (learning rate)", default: 0.01)
 ```
 
 ```elixir
+# Read the user-provided values for iterations and learning rate
 iterations = Kino.Input.read(iterations)
 lr = Kino.Input.read(lr)
 
+# Train the linear regression model without bias
+# This process will:
+# 1. Start with a weight of 0
+# 2. Iteratively adjust the weight to minimize the mean squared error
+# 3. Print the loss at each iteration to show progress
+# 4. Stop when no improvement is found or max iterations reached
+# 5. Return the final optimized weight
 w = C2.LinearRegression.train(x, y, iterations = iterations, lr = lr)
 ```
 
@@ -138,7 +158,7 @@ predictions =
   end)
 ```
 
-<!-- livebook:{"attrs":{"chart_title":null,"height":400,"layers":[{"chart_type":"point","color_field":null,"color_field_aggregate":null,"color_field_bin":false,"color_field_scale_scheme":null,"color_field_type":null,"data_variable":"data","x_field":"reservations","x_field_aggregate":null,"x_field_bin":false,"x_field_scale_type":null,"x_field_type":"quantitative","y_field":"pizzas","y_field_aggregate":null,"y_field_bin":false,"y_field_scale_type":null,"y_field_type":"quantitative"},{"chart_type":"line","color_field":null,"color_field_aggregate":null,"color_field_bin":false,"color_field_scale_scheme":null,"color_field_type":null,"data_variable":"predictions","x_field":"x","x_field_aggregate":null,"x_field_bin":false,"x_field_scale_type":null,"x_field_type":"quantitative","y_field":"prediction","y_field_aggregate":null,"y_field_bin":false,"y_field_scale_type":null,"y_field_type":"quantitative"}],"vl_alias":"Elixir.VegaLite","width":600},"chunks":null,"kind":"Elixir.KinoVegaLite.ChartCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJjaGFydF90aXRsZSI6bnVsbCwiaGVpZ2h0Ijo0MDAsImxheWVycyI6W3siYWN0aXZlIjp0cnVlLCJjaGFydF90eXBlIjoicG9pbnQiLCJjb2xvcl9maWVsZCI6bnVsbCwiY29sb3JfZmllbGRfYWdncmVnYXRlIjpudWxsLCJjb2xvcl9maWVsZF9iaW4iOmZhbHNlLCJjb2xvcl9maWVsZF9zY2FsZV9zY2hlbWUiOm51bGwsImNvbG9yX2ZpZWxkX3R5cGUiOm51bGwsImRhdGFfdmFyaWFibGUiOiJkYXRhIiwiZ2VvZGF0YV9jb2xvciI6ImJsdWUiLCJsYXRpdHVkZV9maWVsZCI6bnVsbCwibG9uZ2l0dWRlX2ZpZWxkIjpudWxsLCJ4X2ZpZWxkIjoicmVzZXJ2YXRpb25zIiwieF9maWVsZF9hZ2dyZWdhdGUiOm51bGwsInhfZmllbGRfYmluIjpmYWxzZSwieF9maWVsZF9zY2FsZV90eXBlIjpudWxsLCJ4X2ZpZWxkX3R5cGUiOiJxdWFudGl0YXRpdmUiLCJ5X2ZpZWxkIjoicGl6emFzIiwieV9maWVsZF9hZ2dyZWdhdGUiOm51bGwsInlfZmllbGRfYmluIjpmYWxzZSwieV9maWVsZF9zY2FsZV90eXBlIjpudWxsLCJ5X2ZpZWxkX3R5cGUiOiJxdWFudGl0YXRpdmUifSx7ImFjdGl2ZSI6dHJ1ZSwiY2hhcnRfdHlwZSI6ImxpbmUiLCJjb2xvcl9maWVsZCI6bnVsbCwiY29sb3JfZmllbGRfYWdncmVnYXRlIjpudWxsLCJjb2xvcl9maWVsZF9iaW4iOmZhbHNlLCJjb2xvcl9maWVsZF9zY2FsZV9zY2hlbWUiOm51bGwsImNvbG9yX2ZpZWxkX3R5cGUiOm51bGwsImRhdGFfdmFyaWFibGUiOiJwcmVkaWN0aW9ucyIsImdlb2RhdGFfY29sb3IiOiJibHVlIiwibGF0aXR1ZGVfZmllbGQiOm51bGwsImxvbmdpdHVkZV9maWVsZCI6bnVsbCwieF9maWVsZCI6IngiLCJ4X2ZpZWxkX2FnZ3JlZ2F0ZSI6bnVsbCwieF9maWVsZF9iaW4iOmZhbHNlLCJ4X2ZpZWxkX3NjYWxlX3R5cGUiOm51bGwsInhfZmllbGRfdHlwZSI6InF1YW50aXRhdGl2ZSIsInlfZmllbGQiOiJwcmVkaWN0aW9uIiwieV9maWVsZF9hZ2dyZWdhdGUiOm51bGwsInlfZmllbGRfYmluIjpmYWxzZSwieV9maWVsZF9zY2FsZV90eXBlIjpudWxsLCJ5X2ZpZWxkX3R5cGUiOiJxdWFudGl0YXRpdmUifV0sInZsX2FsaWFzIjoiRWxpeGlyLlZlZ2FMaXRlIiwid2lkdGgiOjYwMH0","chunks":null,"kind":"Elixir.KinoVegaLite.ChartCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 VegaLite.new(width: 600, height: 400)
@@ -184,6 +204,18 @@ defmodule C2.LinearRegressionWithBias do
     avg(squared_error)
   end
 
+  # The train function for the model with bias implements a coordinate descent algorithm:
+  # 1. It starts with both weight and bias at 0
+  # 2. For each iteration, it:
+  #    - Calculates the current loss (mean squared error)
+  #    - Tries adjusting the weight up and down by the learning rate
+  #    - Tries adjusting the bias up and down by the learning rate
+  #    - Moves in the direction that reduces the loss the most
+  #    - If no direction improves the loss, it stops (local minimum found)
+  # 3. Returns the final optimized weight and bias
+  #
+  # This approach optimizes one parameter at a time, checking all possible
+  # single-parameter adjustments and selecting the best one.
   def train(x, y, iterations, lr) when is_list(x) and is_list(y) do
     Enum.reduce_while(0..(iterations - 1), %{weight: 0, bias: 0}, fn i,
                                                                      %{weight: w, bias: b} = acc ->
@@ -222,9 +254,19 @@ lr = Kino.Input.number("lr (learning rate)", default: 0.01)
 ```
 
 ```elixir
+# Read the user-provided values for iterations and learning rate
 iterations = Kino.Input.read(iterations)
 lr = Kino.Input.read(lr)
 
+# Train the linear regression model with bias
+# This process will:
+# 1. Start with both weight and bias at 0
+# 2. Iteratively adjust both parameters to minimize the mean squared error
+# 3. At each step, try changing one parameter (weight or bias) in either direction
+# 4. Move in the direction that most reduces the error
+# 5. Print the loss at each iteration to show progress
+# 6. Stop when no improvement is found or max iterations reached
+# 7. Return the final optimized weight and bias
 %{weight: w2, bias: bias} =
   C2.LinearRegressionWithBias.train(x, y, iterations = 10_000, lr = 0.01)
 ```
@@ -250,7 +292,7 @@ predictions =
   end)
 ```
 
-<!-- livebook:{"attrs":{"chart_title":null,"height":400,"layers":[{"chart_type":"point","color_field":null,"color_field_aggregate":null,"color_field_bin":false,"color_field_scale_scheme":null,"color_field_type":null,"data_variable":"data","x_field":"reservations","x_field_aggregate":null,"x_field_bin":false,"x_field_scale_type":null,"x_field_type":"quantitative","y_field":"pizzas","y_field_aggregate":null,"y_field_bin":false,"y_field_scale_type":null,"y_field_type":"quantitative"},{"chart_type":"line","color_field":null,"color_field_aggregate":null,"color_field_bin":false,"color_field_scale_scheme":null,"color_field_type":null,"data_variable":"predictions","x_field":"x","x_field_aggregate":null,"x_field_bin":false,"x_field_scale_type":null,"x_field_type":"quantitative","y_field":"prediction","y_field_aggregate":null,"y_field_bin":false,"y_field_scale_type":null,"y_field_type":"quantitative"}],"vl_alias":"Elixir.VegaLite","width":600},"chunks":null,"kind":"Elixir.KinoVegaLite.ChartCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJjaGFydF90aXRsZSI6bnVsbCwiaGVpZ2h0Ijo0MDAsImxheWVycyI6W3siYWN0aXZlIjp0cnVlLCJjaGFydF90eXBlIjoicG9pbnQiLCJjb2xvcl9maWVsZCI6bnVsbCwiY29sb3JfZmllbGRfYWdncmVnYXRlIjpudWxsLCJjb2xvcl9maWVsZF9iaW4iOmZhbHNlLCJjb2xvcl9maWVsZF9zY2FsZV9zY2hlbWUiOm51bGwsImNvbG9yX2ZpZWxkX3R5cGUiOm51bGwsImRhdGFfdmFyaWFibGUiOiJkYXRhIiwiZ2VvZGF0YV9jb2xvciI6ImJsdWUiLCJsYXRpdHVkZV9maWVsZCI6bnVsbCwibG9uZ2l0dWRlX2ZpZWxkIjpudWxsLCJ4X2ZpZWxkIjoicmVzZXJ2YXRpb25zIiwieF9maWVsZF9hZ2dyZWdhdGUiOm51bGwsInhfZmllbGRfYmluIjpmYWxzZSwieF9maWVsZF9zY2FsZV90eXBlIjpudWxsLCJ4X2ZpZWxkX3R5cGUiOiJxdWFudGl0YXRpdmUiLCJ5X2ZpZWxkIjoicGl6emFzIiwieV9maWVsZF9hZ2dyZWdhdGUiOm51bGwsInlfZmllbGRfYmluIjpmYWxzZSwieV9maWVsZF9zY2FsZV90eXBlIjpudWxsLCJ5X2ZpZWxkX3R5cGUiOiJxdWFudGl0YXRpdmUifSx7ImFjdGl2ZSI6dHJ1ZSwiY2hhcnRfdHlwZSI6ImxpbmUiLCJjb2xvcl9maWVsZCI6bnVsbCwiY29sb3JfZmllbGRfYWdncmVnYXRlIjpudWxsLCJjb2xvcl9maWVsZF9iaW4iOmZhbHNlLCJjb2xvcl9maWVsZF9zY2FsZV9zY2hlbWUiOm51bGwsImNvbG9yX2ZpZWxkX3R5cGUiOm51bGwsImRhdGFfdmFyaWFibGUiOiJwcmVkaWN0aW9ucyIsImdlb2RhdGFfY29sb3IiOiJibHVlIiwibGF0aXR1ZGVfZmllbGQiOm51bGwsImxvbmdpdHVkZV9maWVsZCI6bnVsbCwieF9maWVsZCI6IngiLCJ4X2ZpZWxkX2FnZ3JlZ2F0ZSI6bnVsbCwieF9maWVsZF9iaW4iOmZhbHNlLCJ4X2ZpZWxkX3NjYWxlX3R5cGUiOm51bGwsInhfZmllbGRfdHlwZSI6InF1YW50aXRhdGl2ZSIsInlfZmllbGQiOiJwcmVkaWN0aW9uIiwieV9maWVsZF9hZ2dyZWdhdGUiOm51bGwsInlfZmllbGRfYmluIjpmYWxzZSwieV9maWVsZF9zY2FsZV90eXBlIjpudWxsLCJ5X2ZpZWxkX3R5cGUiOiJxdWFudGl0YXRpdmUifV0sInZsX2FsaWFzIjoiRWxpeGlyLlZlZ2FMaXRlIiwid2lkdGgiOjYwMH0","chunks":null,"kind":"Elixir.KinoVegaLite.ChartCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 VegaLite.new(width: 600, height: 400)
